@@ -1,0 +1,62 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-main-text: rgb(89, 160, 252);
+  --color-main-hover-text: rgb(135, 185, 248);
+  --color-main-disable: rgb(164, 200, 246);
+  --main-bg-pattern: url('./assets/img/background.jpg');
+  --auth-bg-image: url('./assets/img/auth.svg');
+  --auth-bg-image-new: url('./assets/img/auth1.svg');
+  --main-bg-image: url('./assets/img/main1.svg');
+  --main-height: calc(100vh - 155px)
+}
+
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/src/assets/fonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/src/assets/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+:root {
+  font-family: "JetBrains Mono", monospace;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+
+}
+
+
+
+body {
+  place-items: center;
+  margin: 0;
+  min-width: 320px;
+  height: 100%;
+  min-height: 100vh;
+
+
+  /*background-color: rgb(247, 248, 250);*/
+}
+
+#app {
+  /*max-width: 1920px;*/
+  margin: 0 auto;
+  /*padding: 0;*/
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}

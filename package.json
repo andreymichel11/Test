@@ -1,0 +1,35 @@
+{
+  "name": "test",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "@tailwindcss/vite": "^4.0.4",
+    "@ton.js/json-parse-polyfill": "^0.0.0-beta.1",
+    "@vueuse/core": "^12.5.0",
+    "axios": "^1.7.9",
+    "chart.js": "^4.4.8",
+    "element-plus": "^2.9.4",
+    "font-awesome": "^4.7.0",
+    "highlight.js": "^11.11.1",
+    "json-bigint": "^1.0.0",
+    "jwt-decode": "^4.0.0",
+    "pinia": "^2.3.1",
+    "simple-code-editor": "^2.0.9",
+    "sl-vue-tree-next": "^0.0.13",
+    "tailwindcss": "^4.0.4",
+    "vue": "^3.5.13",
+    "vue-chartjs": "^5.3.2",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.1.0"
+  }
+}
