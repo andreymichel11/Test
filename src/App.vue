@@ -69,11 +69,16 @@ watch(() => route.path, (newPath) => {
   }
 });
 
+const theme = localStorage.getItem("data-theme");
 // Создаем соединение при монтировании компонента, если есть токен и не на странице логина
 onMounted(() => {
   if (AuthStore.access_token && route.path !== '/login') {
     createWebSocketConnection();
     SubjectStore.getStatistic()
+  }
+  if (theme === 'dark') {
+    document.querySelector("html").classList.add("dark");
+    document.documentElement.setAttribute('data-theme', 'dark');
   }
 });
 

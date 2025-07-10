@@ -142,7 +142,7 @@ const login = async () => {
     <div class="order-2 flex justify-center  lg:col-span-2  max-lg:self-start">
       <div class="w-full max-w-xl">
         <Transition name="slide-fade" appear>
-          <div v-if="showForm" class="auth-form bg-[#ffffff00] dark:bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 transform transition-all duration-300 hover:shadow-3xl">
+          <div v-if="showForm" class="auth-form bg-[#ffffff00] dark:bg-neutral-800 rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 transform transition-all duration-300 hover:shadow-3xl">
             <div class="text-center mb-8">
               <h2 class="text-xl font-bold lg:text-left text-(--color-main-text) dark:text-white mb-2">
                 Войдите в свой аккаунт
@@ -379,7 +379,6 @@ const login = async () => {
 
 /* Улучшенные переходы для темной темы */
 .dark .auth-form {
-  background: rgba(31, 41, 55, 0.9);
   backdrop-filter: blur(20px);
 }
 
