@@ -83,6 +83,6 @@ onMounted(() => {
 </script>
 
 <template>
-<NavBar/>
+  <NavBar v-if="AuthStore.access_token && route.path !== '/login'"/>
   <router-view/>
 </template>
