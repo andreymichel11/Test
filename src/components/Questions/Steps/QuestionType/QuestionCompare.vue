@@ -1,130 +1,265 @@
 <template>
-  <div class="container mx-auto" ref="tablesContainer">
-    <div class="flex flex-col md:flex-row gap-6 relative" >
-      <!-- SVG для отображения соединений -->
-      <svg ref="connectionsSvg" class="connections-svg absolute top-0 left-0 w-full h-full pointer-events-none"></svg>
-      <!-- Левая таблица -->
-      <div class="flex w-full gap-4 flex-col md:flex-row">
-        <div class="rounded-lg shadow-sm p-4 bg-gray-100 dark:bg-neutral-800 w-full md:w-[50%]">
-          <div class="mb-4">
-            <h2 class="text-lg font-semibold mb-2">Левая колонка</h2>
-            <div class="flex items-center justify-between flex-wrap gap-2">
-              <el-input v-model="newLeftItemValue" placeholder="Введите значение" size="large" class="flex-grow"/>
-              <el-button type="primary" @click="addLeftItem" :disabled="!newLeftItemValue.trim()" size="large" class="ml-2">
-                Добавить элемент
-              </el-button>
-            </div>
-          </div>
-          <el-table
-              :data="leftTableData"
-              style="width: 100%"
-              border
-              highlight-current-row
-              @cell-dblclick="handleLeftRowChange"
-              row-key="id"
-          >
-            <el-table-column prop="value" label="Значение">
-              <template #default="{ row }">
-                <div class="flex items-center justify-between">
-                  <span>{{ row.value }}</span>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column width="70">
-              <template #default="{ row }">
-                <div class="flex items-center justify-between">
-                  <el-button
-                      type="danger"
-                      size="small"
-                      circle
-                      @click="removeLeftItem(row.id)"
-                      :disabled="row.connectedTo.length > 0">
-                    <el-icon><Delete /></el-icon>
-                  </el-button>
-                  <div
-                      :id="`left-dot-${row.id}`"
-                      class="connection-dot"
-                      :class="{ 'connected': row.connectedTo.length > 0 }"
-                      :style="{ backgroundColor: row.connectedTo.length > 0 ? getConnectionColor(row.id) : 'gray' }"
-                      @click="handleDotClick(row, 'left')"
-                  ></div>
-                </div>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <!-- Правая таблица -->
-        <div class="rounded-lg shadow-sm p-4 bg-gray-100 dark:bg-neutral-800 w-full md:w-[50%]">
-          <div class="mb-4">
-            <h2 class="text-lg font-semibold block mb-2">Правая колонка</h2>
-            <div class="flex items-center justify-between flex-wrap gap-2">
-              <el-input v-model="newRightItemValue" placeholder="Введите значение" size="large" class="flex-grow"/>
-              <el-button type="primary" @click="addRightItem" :disabled="!newRightItemValue.trim()" size="large" class="ml-2">
-                Добавить элемент
-              </el-button>
-            </div>
-          </div>
-          <el-table
-              :data="rightTableData"
-              style="width: 100%"
-              border
-              highlight-current-row
-              @cell-dblclick="handleRightRowChange"
-              row-key="id"
-          >
-            <el-table-column prop="value" label="Значение">
-              <template #default="{ row }">
-                <div class="flex items-center justify-between">
-                  <div
-                      :id="`right-dot-${row.id}`"
-                      class="connection-dot"
-                      :class="{ 'connected': row.connectedFrom.length > 0 }"
-                      :style="{ backgroundColor: row.connectedFrom.length > 0 ? getConnectionColor(row.connectedFrom[0]) : 'gray' }"
-                      @click="handleDotClick(row, 'right')"
-                  ></div>
-                  <span>{{ row.value }}</span>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column width="70">
-              <template #default="{ row }">
+  <div class="h-full flex flex-col overflow-hidden" ref="tablesContainer">
+    <!-- Tables Container -->
+    <div class="flex-1 relative min-h-0">
+      <!-- SVG для отображения соединений (только для десктопа) -->
+      <svg v-if="!isMobile" ref="connectionsSvg" class="connections-svg absolute top-0 left-0 w-full h-full pointer-events-none z-10"></svg>
+
+      <!-- Tables Grid -->
+      <div class="h-full grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Левая таблица -->
+        <div class="flex flex-col h-full">
+          <div class="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg flex-1 flex flex-col min-h-0">
+            <div class="p-3 border-b border-gray-200 dark:border-neutral-700 flex-shrink-0">
+              <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Левая колонка</h3>
+              <div class="flex gap-2">
+                <el-input
+                    v-model="newLeftItemValue"
+                    placeholder="Введите значение"
+                    size="large"
+                    class="flex-1"
+                />
                 <el-button
-                    type="danger"
-                    size="small"
-                    circle
-                    @click="removeRightItem(row.id)"
-                    :disabled="row.connectedFrom.length > 0"
+                    type="primary"
+                    @click="addLeftItem"
+                    :disabled="!newLeftItemValue.trim()"
+                    size="large"
+                    class="add-item-btn px-3"
                 >
-                  <el-icon><Delete /></el-icon>
+                  <i class="fa fa-plus"></i>
                 </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+              </div>
+            </div>
+
+            <div class="flex-1 overflow-hidden min-h-0">
+              <el-table
+                  :data="leftTableData"
+                  style="width: 100%; height: 100%;"
+                  border
+                  highlight-current-row
+                  @cell-dblclick="handleLeftRowChange"
+                  row-key="id"
+                  class="compact-table"
+              >
+                <el-table-column prop="value" label="Значение" min-width="120">
+                  <template #default="{ row }">
+                    <div class="p-3 rounded-lg transition-all duration-300"
+                         :style="getRowStyle(row, 'left')">
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="text-gray-900 dark:text-white text-sm font-medium">{{ row.value }}</span>
+                        <div v-if="row.connectedTo.length > 0"
+                             class="w-5 h-5 rounded-full border-2 border-white shadow-lg"
+                             :style="{ backgroundColor: getConnectionColor(row.id) }">
+                        </div>
+                      </div>
+                      <div v-if="row.connectedTo.length > 0" class="text-xs font-bold"
+                           :style="{ color: getConnectionColor(row.id) }">
+                        → Соединено с правой стороной
+                      </div>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column width="100" align="center">
+                  <template #default="{ row }">
+                    <div class="flex items-center justify-between gap-1">
+                      <el-button
+                          type="danger"
+                          size="small"
+                          circle
+                          @click="removeLeftItem(row.id)"
+                          :disabled="row.connectedTo.length > 0"
+                          class="action-btn"
+                      >
+                        <i class="fa fa-trash text-xs"></i>
+                      </el-button>
+
+                      <!-- Десктопная версия с точками -->
+                      <div v-if="!isMobile"
+                           :id="`left-dot-${row.id}`"
+                           class="connection-dot"
+                           :class="{ 'connected': row.connectedTo.length > 0 }"
+                           :style="{ backgroundColor: row.connectedTo.length > 0 ? getConnectionColor(row.id) : '#9ca3af' }"
+                           @click="handleDotClick(row, 'left')"
+                      ></div>
+
+                      <!-- Мобильная версия с кнопками -->
+                      <el-button v-else
+                                 :type="row.connectedTo.length > 0 ? 'success' : 'primary'"
+                                 size="small"
+                                 @click="handleMobileConnection(row, 'left')"
+                                 class="mobile-connect-btn"
+                      >
+                        <i class="fa text-xs" :class="row.connectedTo.length > 0 ? 'fa-check' : 'fa-link'"></i>
+                      </el-button>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Правая таблица -->
+        <div class="flex flex-col h-full">
+          <div class="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg flex-1 flex flex-col min-h-0">
+            <div class="p-3 border-b border-gray-200 dark:border-neutral-700 flex-shrink-0">
+              <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Правая колонка</h3>
+              <div class="flex gap-2">
+                <el-input
+                    v-model="newRightItemValue"
+                    placeholder="Введите значение"
+                    size="large"
+                    class="flex-1"
+                />
+                <el-button
+                    type="primary"
+                    @click="addRightItem"
+                    :disabled="!newRightItemValue.trim()"
+                    size="large"
+                    class="add-item-btn px-3"
+                >
+                  <i class="fa fa-plus"></i>
+                </el-button>
+              </div>
+            </div>
+
+            <div class="flex-1 overflow-hidden min-h-0">
+              <el-table
+                  :data="rightTableData"
+                  style="width: 100%; height: 100%;"
+                  border
+                  highlight-current-row
+                  @cell-dblclick="handleRightRowChange"
+                  row-key="id"
+                  class="compact-table"
+              >
+                <el-table-column width="100" align="center">
+                  <template #default="{ row }">
+                    <div class="flex items-center justify-between gap-1">
+                      <!-- Десктопная версия с точками -->
+                      <div v-if="!isMobile"
+                           :id="`right-dot-${row.id}`"
+                           class="connection-dot"
+                           :class="{ 'connected': row.connectedFrom.length > 0 }"
+                           :style="{ backgroundColor: row.connectedFrom.length > 0 ? getConnectionColor(row.connectedFrom[0]) : '#9ca3af' }"
+                           @click="handleDotClick(row, 'right')"
+                      ></div>
+
+                      <!-- Мобильная версия с кнопками -->
+                      <el-button v-else
+                                 :type="row.connectedFrom.length > 0 ? 'success' : 'primary'"
+                                 size="small"
+                                 @click="handleMobileConnection(row, 'right')"
+                                 class="mobile-connect-btn"
+                      >
+                        <i class="fa text-xs" :class="row.connectedFrom.length > 0 ? 'fa-check' : 'fa-link'"></i>
+                      </el-button>
+
+                      <el-button
+                          type="danger"
+                          size="small"
+                          circle
+                          @click="removeRightItem(row.id)"
+                          :disabled="row.connectedFrom.length > 0"
+                          class="action-btn"
+                      >
+                        <i class="fa fa-trash text-xs"></i>
+                      </el-button>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="value" label="Значение" min-width="120">
+                  <template #default="{ row }">
+                    <div class="p-3 rounded-lg transition-all duration-300"
+                         :style="getRowStyle(row, 'right')">
+                      <div class="flex items-center gap-2 mb-1">
+                        <div v-if="row.connectedFrom.length > 0"
+                             class="w-4 h-4 rounded-full border-2 border-white shadow-md"
+                             :style="{ backgroundColor: getConnectionColor(row.connectedFrom[0], row.id) }">
+                        </div>
+                        <span class="text-gray-900 dark:text-white text-sm font-medium">{{ row.value }}</span>
+                      </div>
+                      <div v-if="row.connectedFrom.length > 0" class="text-xs font-semibold"
+                           :style="{ color: getConnectionColor(row.connectedFrom[0], row.id) }">
+                        ← Соединено с левой стороной
+                      </div>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <p v-if="rightTableData.length>0 && leftTableData.length>0" class="mt-2 text-md dark:text-gray-400 text-gray-500 text-center">Для установки соединения нажмите на нужную ячейку в левой таблице два раза и затем также на ячейку из правой таблицы.
-      Также можно устанавливать соединение нажав на кружок на нужной ячейки.
-      Для снятия соединение нажмите на кружок в ячейке</p>
-    <div class="flex items-center justify-center mt-4">
-      <el-button
-          class="text-center"
-          type="danger"
-          @click="disconnectAll"
-          v-if="Object.keys(connectionsObject).length !== 0"
-      >
-        Сбросить все соединения
-      </el-button>
     </div>
 
-    <div class="mt-6 rounded-lg" v-if="Object.keys(connectionsObject).length !== 0">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold">Правильный ответ:</h2>
+    <!-- Bottom Section -->
+    <div class="flex-shrink-0 space-y-3 mt-4">
+      <!-- Mobile Connection Helper -->
+      <div v-if="isMobile && mobileSelectedLeft" class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3">
+        <p class="text-sm text-yellow-700 dark:text-yellow-300">
+          <i class="fa fa-info-circle mr-2"></i>
+          Выбран элемент "<strong>{{ mobileSelectedLeft.value }}</strong>". Теперь нажмите на элемент в правой колонке для создания соединения.
+        </p>
       </div>
-      <div class="mt-4">
-        <el-tag type="success" effect="plain" size="large" v-for="variant in Object.keys(connectionsObject)" :key="variant" class="!p-2 bg-gray-100 dark:bg-neutral-700 inline-block rounded-md !text-base mr-2 mb-2">
-          {{`${variant} - ${connectionsObject[variant]}`}}
-        </el-tag>
+
+      <!-- Instructions -->
+      <div v-if="rightTableData.length > 0 && leftTableData.length > 0" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+        <p class="text-sm text-blue-700 dark:text-blue-300">
+          <i class="fa fa-info-circle mr-2"></i>
+          <span v-if="!isMobile">
+            Дважды нажмите на ячейку в левой таблице, затем на ячейку в правой таблице для создания соединения.
+            Или используйте цветные кружки.
+          </span>
+          <span v-else>
+            Нажмите кнопку соединения в левой колонке, затем в правой колонке для создания связи.
+          </span>
+        </p>
+      </div>
+
+      <!-- Reset Button and Correct Answers in one row -->
+      <div v-if="Object.keys(connectionsObject).length !== 0" class="flex flex-col lg:flex-row gap-4">
+        <div class="flex-shrink-0">
+          <el-button
+              type="danger"
+              @click="disconnectAll"
+              size="small"
+          >
+            <i class="fa fa-times mr-1"></i>
+            Сбросить соединения
+          </el-button>
+        </div>
+
+        <!-- Correct Answers -->
+        <div class="flex-1">
+          <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            Правильные соответствия ({{ Object.keys(connectionsObject).length }})
+          </h4>
+          <div class="flex gap-2 flex-wrap max-h-20 overflow-y-auto">
+            <el-tag
+                v-for="variant in Object.keys(connectionsObject)"
+                :key="variant"
+                type="success"
+                size="small"
+                class="px-2 py-1"
+            >
+              {{ variant }} → {{ connectionsObject[variant] }}
+            </el-tag>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="leftTableData.length === 0 && rightTableData.length === 0" class="text-center py-6">
+        <div class="w-12 h-12 bg-gray-100 dark:bg-neutral-700 rounded-lg flex items-center justify-center mx-auto mb-3">
+          <i class="fa fa-exchange-alt text-gray-400"></i>
+        </div>
+        <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+          Создайте элементы для сопоставления
+        </h3>
+        <p class="text-xs text-gray-600 dark:text-gray-400">
+          Добавьте элементы в обе колонки и создайте соединения
+        </p>
       </div>
     </div>
   </div>
@@ -133,13 +268,15 @@
 <script setup>
 import {ref, computed, onMounted, onUnmounted, watch, nextTick, onUpdated} from 'vue'
 import { Delete } from '@element-plus/icons-vue'
-
 import {useQuestionStore} from "../../../../store/QuestionStore.js";
+
 const QuestionStore = useQuestionStore()
+
 const props = defineProps({
   isUpdate: Boolean,
   isCode: Boolean,
 })
+
 // Данные таблиц
 const leftTableData = ref([])
 const rightTableData = ref([])
@@ -148,11 +285,15 @@ const rightTableData = ref([])
 const selectedLeftRow = ref(null)
 const selectedRightRow = ref(null)
 
+// Мобильные состояния
+const mobileSelectedLeft = ref(null)
+const isMobile = ref(false)
+
 // Диалоги для добавления элементов
 const newLeftItemValue = ref('')
 const newRightItemValue = ref('')
 
-// Соединения между элементами (Map с id левой таблицы -> id правой таблицы)
+// Соединения между элементами
 const connections = ref(new Map())
 
 // SVG для отображения соединений
@@ -160,14 +301,26 @@ const connectionsSvg = ref(null)
 const tablesContainer = ref(null)
 let resizeObserver = null;
 
+// Проверка мобильного устройства
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 768
+}
+
 // Устанавливаем обработчик изменения размера окна
 onMounted(() => {
-  window.addEventListener('resize', drawConnections);
+  checkMobile()
+  window.addEventListener('resize', () => {
+    checkMobile()
+    if (!isMobile.value) {
+      drawConnections()
+    }
+  });
 
-  // Используем ResizeObserver для отслеживания изменений размера контейнера
   if (window.ResizeObserver) {
     resizeObserver = new ResizeObserver(() => {
-      drawConnections();
+      if (!isMobile.value) {
+        drawConnections()
+      }
     });
 
     nextTick(() => {
@@ -178,9 +331,8 @@ onMounted(() => {
   }
 });
 
-// Удаляем обработчики при уничтожении компонента
 onUnmounted(() => {
-  window.removeEventListener('resize', drawConnections);
+  window.removeEventListener('resize', checkMobile);
   if (resizeObserver) {
     resizeObserver.disconnect();
   }
@@ -201,9 +353,11 @@ watch(
             Object.keys(item).forEach((key) => {
               const foundLeftObject = leftTableData.value.find(i => i.value == key);
               const foundRightObject = rightTableData.value.find(i => i.value == item[key]);
-              connections.value.set(foundLeftObject.id, foundRightObject.id)
-              foundLeftObject.connectedTo.push(foundRightObject.id);
-              foundRightObject.connectedFrom.push(foundLeftObject.id);
+              if (foundLeftObject && foundRightObject) {
+                connections.value.set(foundLeftObject.id, foundRightObject.id)
+                foundLeftObject.connectedTo.push(foundRightObject.id);
+                foundRightObject.connectedFrom.push(foundLeftObject.id);
+              }
             })
           })
         })
@@ -213,8 +367,31 @@ watch(
     { immediate: true }
 );
 
+// Обновляем данные в store при изменении соединений
+watch([leftTableData, rightTableData, connections], () => {
+  // Обновляем variants
+  QuestionStore.newQuestion.variants.variants = [{
+    left: leftTableData.value.map(item => item.value),
+    right: rightTableData.value.map(item => item.value)
+  }]
+
+  // Обновляем answer
+  const answers = []
+  leftTableData.value.forEach(leftItem => {
+    if (leftItem.connectedTo.length > 0) {
+      const rightItem = rightTableData.value.find(item => item.id === leftItem.connectedTo[0])
+      if (rightItem) {
+        answers.push({
+          [leftItem.value]: rightItem.value
+        })
+      }
+    }
+  })
+  QuestionStore.newQuestion.answer.answer = answers
+}, { deep: true })
+
 function tryDrawConnections(attempts = 5) {
-  if (attempts <= 0) return;
+  if (attempts <= 0 || isMobile.value) return;
 
   nextTick(() => {
     const allDotsExist = Array.from(connections.value.entries()).every(([leftId, rightId]) => {
@@ -228,14 +405,6 @@ function tryDrawConnections(attempts = 5) {
     }
   });
 }
-
-// Проверка возможности соединения
-const canConnect = computed(() => {
-  return selectedLeftRow.value &&
-      selectedRightRow.value &&
-      selectedLeftRow.value.connectedTo === null &&
-      selectedRightRow.value.connectedFrom.length === 0
-})
 
 // Объект с результатами соединений
 const connectionsObject = computed(() => {
@@ -253,30 +422,63 @@ const connectionsObject = computed(() => {
 
 // Цвета для соединений
 const connectionColors = [
-  '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
-  '#1abc9c', '#d35400', '#34495e', '#7f8c8d', '#c0392b'
+  '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6',
+  '#06b6d4', '#f97316', '#84cc16', '#ec4899', '#6366f1'
 ]
 
-// Получение цвета для соединения
-function getConnectionColor(id) {
-  return connectionColors[id % connectionColors.length]
+// Получение цвета для соединения на основе индекса соединения
+function getConnectionColor(leftId, rightId = null) {
+  // Находим индекс соединения в Map
+  const connectionIndex = Array.from(connections.value.keys()).findIndex(key =>
+      key === leftId || connections.value.get(key) === leftId
+  )
+
+  // Если соединение не найдено, используем комбинацию ID
+  if (connectionIndex === -1) {
+    const combinedId = (leftId || 0) + (rightId || 0)
+    return connectionColors[combinedId % connectionColors.length]
+  }
+
+  return connectionColors[connectionIndex % connectionColors.length]
+}
+
+// Получение стилей для строки
+function getRowStyle(row, side) {
+  const isConnected = side === 'left' ? row.connectedTo.length > 0 : row.connectedFrom.length > 0
+
+  if (!isConnected) {
+    return {
+      backgroundColor: '#f8fafc',
+      border: '1px solid #e2e8f0'
+    }
+  }
+
+  let color
+  if (side === 'left') {
+    color = getConnectionColor(row.id)
+  } else {
+    color = getConnectionColor(row.connectedFrom[0])
+  }
+
+  return {
+    backgroundColor: color + '30', // 30% прозрачности для лучшей видимости
+    border: `3px solid ${color}`,
+    boxShadow: `0 2px 4px ${color}40`
+  }
 }
 
 // Функция для рисования соединений
 function drawConnections() {
-  if (!connectionsSvg.value || !tablesContainer.value) return;
+  if (!connectionsSvg.value || !tablesContainer.value || isMobile.value) return;
 
-  // Очищаем SVG перед перерисовкой
   while (connectionsSvg.value.firstChild) {
     connectionsSvg.value.removeChild(connectionsSvg.value.firstChild);
   }
 
-  // Устанавливаем размеры SVG равными размерам контейнера
   const containerRect = tablesContainer.value.getBoundingClientRect();
   connectionsSvg.value.setAttribute('width', `${containerRect.width}`);
   connectionsSvg.value.setAttribute('height', `${containerRect.height}`);
 
-  // Рисуем каждое соединение
   connections.value.forEach((rightId, leftId) => {
     const leftDot = document.getElementById(`left-dot-${leftId}`);
     const rightDot = document.getElementById(`right-dot-${rightId}`);
@@ -286,29 +488,52 @@ function drawConnections() {
       const rightRect = rightDot.getBoundingClientRect();
       const containerRect = tablesContainer.value.getBoundingClientRect();
 
-      // Вычисляем координаты относительно SVG
       const x1 = leftRect.left + leftRect.width / 2 - containerRect.left;
       const y1 = leftRect.top + leftRect.height / 2 - containerRect.top;
       const x2 = rightRect.left + rightRect.width / 2 - containerRect.left;
       const y2 = rightRect.top + rightRect.height / 2 - containerRect.top;
 
-      // Создаем линию
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       line.setAttribute('x1', x1);
       line.setAttribute('y1', y1);
       line.setAttribute('x2', x2);
       line.setAttribute('y2', y2);
-      line.setAttribute('stroke', getConnectionColor(leftId));
-      line.setAttribute('stroke-width', '2');
+      line.setAttribute('stroke', getConnectionColor(leftId, rightId));
+      line.setAttribute('stroke-width', '3');
 
       connectionsSvg.value.appendChild(line);
     }
   });
 }
 
+// Мобильная версия соединения
+function handleMobileConnection(row, side) {
+  if (side === 'left') {
+    if (row.connectedTo.length > 0) {
+      // Если уже соединен, отключаем
+      const rightId = row.connectedTo[0]
+      deleteConnection(row.id, rightId)
+      mobileSelectedLeft.value = null
+    } else {
+      // Выбираем левый элемент
+      mobileSelectedLeft.value = row
+    }
+  } else { // right
+    if (row.connectedFrom.length > 0) {
+      // Если уже соединен, отключаем
+      const leftId = row.connectedFrom[0]
+      deleteConnection(leftId, row.id)
+    } else if (mobileSelectedLeft.value) {
+      // Создаем соединение
+      createConnection(mobileSelectedLeft.value.id, row.id)
+      mobileSelectedLeft.value = null
+    }
+  }
+}
+
 function addLeftItem() {
   if (newLeftItemValue.value.trim()) {
-    const id = leftTableData.value.length+1
+    const id = Date.now() + Math.random() // Уникальный ID
     leftTableData.value.push({
       id,
       value: newLeftItemValue.value.trim(),
@@ -316,9 +541,10 @@ function addLeftItem() {
     })
 
     newLeftItemValue.value = ''
-    // Перерисовываем соединения после добавления элемента
     nextTick(() => {
-      drawConnections()
+      if (!isMobile.value) {
+        drawConnections()
+      }
     })
   }
 }
@@ -326,31 +552,35 @@ function addLeftItem() {
 function removeLeftItem(id) {
   const index = leftTableData.value.findIndex(item => item.id === id)
   if (index !== -1) {
-    // Если удаляемый элемент был выбран, сбрасываем выбор
     if (selectedLeftRow.value && selectedLeftRow.value.id === id) {
       selectedLeftRow.value = null
       selectedRightRow.value = null
     }
+    if (mobileSelectedLeft.value && mobileSelectedLeft.value.id === id) {
+      mobileSelectedLeft.value = null
+    }
     leftTableData.value.splice(index, 1)
-    // Перерисовываем соединения после удаления элемента
     nextTick(() => {
-      drawConnections()
+      if (!isMobile.value) {
+        drawConnections()
+      }
     })
   }
 }
 
 function addRightItem() {
   if (newRightItemValue.value.trim()) {
-    const id = rightTableData.value.length+1
+    const id = Date.now() + Math.random() // Уникальный ID
     rightTableData.value.push({
       id,
       value: newRightItemValue.value.trim(),
       connectedFrom: []
     })
     newRightItemValue.value = ''
-    // Перерисовываем соединения после добавления элемента
     nextTick(() => {
-      drawConnections()
+      if (!isMobile.value) {
+        drawConnections()
+      }
     })
   }
 }
@@ -358,25 +588,22 @@ function addRightItem() {
 function removeRightItem(id) {
   const index = rightTableData.value.findIndex(item => item.id === id)
   if (index !== -1) {
-    // Если удаляемый элемент был выбран, сбрасываем выбор
     if (selectedRightRow.value && selectedRightRow.value.id === id) {
       selectedLeftRow.value = null
       selectedRightRow.value = null
     }
     rightTableData.value.splice(index, 1)
-    // Перерисовываем соединения после удаления элемента
     nextTick(() => {
-      drawConnections()
+      if (!isMobile.value) {
+        drawConnections()
+      }
     })
   }
 }
 
-// Обработчики выбора строк
 function handleLeftRowChange(row) {
   selectedLeftRow.value = row
 
-  // Если выбрана правая строка и левая строка не имеет соединения,
-  // а правая строка не имеет входящих соединений, то создаем соединение
   if (selectedRightRow.value && row.connectedTo.length === 0 && selectedRightRow.value.connectedFrom.length === 0) {
     createConnection(row.id, selectedRightRow.value.id)
     selectedLeftRow.value = null
@@ -387,8 +614,6 @@ function handleLeftRowChange(row) {
 function handleRightRowChange(row) {
   selectedRightRow.value = row
 
-  // Если выбрана левая строка и левая строка не имеет соединения,
-  // а правая строка не имеет входящих соединений, то создаем соединение
   if (selectedLeftRow.value && selectedLeftRow.value.connectedTo.length === 0 && row.connectedFrom.length === 0) {
     createConnection(selectedLeftRow.value.id, row.id)
     selectedLeftRow.value = null
@@ -396,87 +621,73 @@ function handleRightRowChange(row) {
   }
 }
 
-// Обработчик клика по точке соединения
 function handleDotClick(row, side) {
   if (side === 'left') {
-    // Если точка уже соединена, удаляем соединение
     if (row.connectedTo.length > 0) {
       const rightId = row.connectedTo[0]
       deleteConnection(row.id, rightId)
     } else {
-      // Если точка не соединена, начинаем процесс соединения
       selectedLeftRow.value = row
       selectedRightRow.value = null
     }
-  } else { // side === 'right'
-    // Если точка уже соединена, удаляем соединение
+  } else {
     if (row.connectedFrom.length > 0) {
       const leftId = row.connectedFrom[0]
       deleteConnection(leftId, row.id)
     } else if (selectedLeftRow.value) {
-      // Если левая точка выбрана, создаем соединение
       createConnection(selectedLeftRow.value.id, row.id)
       selectedLeftRow.value = null
     }
   }
 }
 
-// Создание соединения между элементами
 function createConnection(leftId, rightId) {
-  // Находим соответствующие объекты
   const leftItem = leftTableData.value.find(item => item.id === leftId)
   const rightItem = rightTableData.value.find(item => item.id === rightId)
 
   if (!leftItem || !rightItem) return
 
-  // Если левый элемент уже соединен с другим правым, удаляем это соединение
   if (leftItem.connectedTo.length > 0) {
     const oldRightId = leftItem.connectedTo[0]
     deleteConnection(leftId, oldRightId)
   }
 
-  // Если правый элемент уже соединен с другим левым, удаляем это соединение
   if (rightItem.connectedFrom.length > 0) {
     const oldLeftId = rightItem.connectedFrom[0]
     deleteConnection(oldLeftId, rightId)
   }
 
-  // Создаем новое соединение
   connections.value.set(leftId, rightId)
   leftItem.connectedTo = [rightId]
   rightItem.connectedFrom = [leftId]
 
-  // Перерисовываем соединения после добавления нового
   nextTick(() => {
-    drawConnections()
+    if (!isMobile.value) {
+      drawConnections()
+    }
   })
 }
 
-// Удаление соединения между элементами
 function deleteConnection(leftId, rightId) {
-  // Находим соответствующие объекты
   const leftItem = leftTableData.value.find(item => item.id === leftId)
   const rightItem = rightTableData.value.find(item => item.id === rightId)
 
   if (!leftItem || !rightItem) return
 
-  // Удаляем соединение
   connections.value.delete(leftId)
   leftItem.connectedTo = []
   rightItem.connectedFrom = []
 
-  // Перерисовываем соединения после удаления
   nextTick(() => {
-    drawConnections()
+    if (!isMobile.value) {
+      drawConnections()
+    }
   })
 }
 
-// Сброс всех соединений
 function disconnectAll() {
-  // Очищаем все соединения
   connections.value.clear()
 
-  // Сбрасываем связи у всех элементов
   leftTableData.value.forEach(item => {
     item.connectedTo = []
   })
@@ -485,11 +696,10 @@ function disconnectAll() {
     item.connectedFrom = []
   })
 
-  // Сбрасываем выбранные строки
   selectedLeftRow.value = null
   selectedRightRow.value = null
+  mobileSelectedLeft.value = null
 
-  // Очищаем SVG
   if (connectionsSvg.value) {
     while (connectionsSvg.value.firstChild) {
       connectionsSvg.value.removeChild(connectionsSvg.value.firstChild)
@@ -497,10 +707,11 @@ function disconnectAll() {
   }
 }
 
-// Перерисовываем соединения при обновлении компонента
 onUpdated(() => {
   nextTick(() => {
-    drawConnections()
+    if (!isMobile.value) {
+      drawConnections()
+    }
   })
 })
 </script>
@@ -522,17 +733,127 @@ onUpdated(() => {
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .connection-dot:hover {
   transform: scale(1.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .connection-dot.connected {
   border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
-.container {
-  position: relative;
+.add-item-btn {
+  background: #3b82f6;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  width: 40px;
+}
+
+.add-item-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.add-item-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-btn {
+  width: 24px;
+  height: 24px;
+}
+
+.mobile-connect-btn {
+  width: 32px;
+  height: 24px;
+  padding: 0;
+  border-radius: 4px;
+}
+
+/* Element Plus Table Styling */
+:deep(.compact-table .el-table__body-wrapper) {
+  max-height: calc(100% - 40px);
+}
+
+:deep(.compact-table .el-table th) {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  padding: 8px 4px;
+  font-size: 12px;
+}
+
+:deep(.compact-table .el-table td) {
+  border-color: #e2e8f0;
+  padding: 2px;
+}
+
+:deep(.compact-table .el-table__row) {
+  transition: all 0.3s ease;
+}
+
+:deep(.dark .compact-table .el-table th) {
+  background: #262626;
+  border-color: #404040;
+}
+
+:deep(.dark .compact-table .el-table td) {
+  border-color: #404040;
+}
+
+/* Element Plus Input Styling */
+:deep(.el-input__wrapper) {
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  padding: 6px 8px;
+}
+
+:deep(.el-input__wrapper:hover) {
+  border-color: #3b82f6;
+}
+
+:deep(.dark .el-input__wrapper) {
+  background: #262626;
+  border-color: #404040;
+}
+
+/* Scrollbar styling */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 2px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .add-item-btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .connection-dot {
+    width: 14px;
+    height: 14px;
+  }
+
+  .grid-cols-1 {
+    gap: 8px;
+  }
 }
 </style>

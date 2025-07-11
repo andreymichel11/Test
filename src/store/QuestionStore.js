@@ -123,7 +123,7 @@ export const useQuestionStore = defineStore('questionStore', {
                 const {subject_id, subject_name} = this.currentQuestion
                 this.getSubjectQuestions(subject_name, subject_id)
                 if (useUsersStore().getRole.toLowerCase() === 'admin') {
-                    useSubjectStore().getSubjects(true)
+                    useSubjectStore().getSubjects()
                 }
                 if (path!=='subjects') {
                     const id = useUsersStore().getUserId
@@ -143,7 +143,7 @@ export const useQuestionStore = defineStore('questionStore', {
                 await this.getQuestionsStatuses().then(() => {
                     const status = this.statuses.find(item => item.name.toLowerCase() === 'создан')
                     this.getQuestions(`?status_id=${status.id}`)
-                    useSubjectStore().getSubjects(true)
+                    useSubjectStore().getSubjects()
                     const {subject_id, subject_name} = this.currentQuestion
                     if (useUsersStore().getRole.toLowerCase() === 'admin') {
                         this.getSubjectQuestions(subject_name, subject_id)

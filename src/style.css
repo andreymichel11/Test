@@ -9,7 +9,7 @@
   --auth-bg-image: url('./assets/img/auth.svg');
   --auth-bg-image-new: url('./assets/img/auth1.svg');
   --main-bg-image: url('./assets/img/main1.svg');
-  --main-height: calc(100vh - 155px)
+  --main-height: calc(100vh - 190px )
 }
 
 

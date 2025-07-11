@@ -8,26 +8,7 @@ const router = useRouter();
 
 // Computed properties
 const currentPageTitle = computed(() => route.meta.alias || 'Страница');
-const breadcrumbItems = computed(() => {
-  const items = [
-    {
-      label: 'Главная',
-      path: '/',
-      icon: House
-    }
-  ];
 
-  // Add current page if not home
-  if (route.path !== '/') {
-    items.push({
-      label: currentPageTitle.value,
-      path: route.path,
-      icon: null
-    });
-  }
-
-  return items;
-});
 
 const handleBreadcrumbClick = (path) => {
   if (path !== route.path) {
@@ -38,7 +19,7 @@ const handleBreadcrumbClick = (path) => {
 
 <template>
   <!-- Modern Breadcrumb Design -->
-  <nav class="mt-6 sm:mt-8 lg:mt-10" aria-label="Breadcrumb">
+  <nav class="mt-6 sm:mt-8 lg:mt-10 mb-5" aria-label="Breadcrumb">
     <!-- Element Plus Version -->
     <el-breadcrumb
         :separator-icon="ArrowRight"

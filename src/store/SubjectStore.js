@@ -82,7 +82,7 @@ export const useSubjectStore = defineStore('subjectStore', {
             this.errText = undefined
             await deleteSubject(id)
                 .then(res => {
-                    this.getSubjects(true)
+                    this.getSubjects()
                     this.getStatistic()
                 })
                 .catch(err => {
@@ -94,7 +94,7 @@ export const useSubjectStore = defineStore('subjectStore', {
             this.errText = undefined
             await putSubject(subject)
                 .then(res => {
-                    this.getSubjects(true)
+                    this.getSubjects()
                     this.getStatistic()
                 })
                 .catch(err => {
@@ -106,7 +106,7 @@ export const useSubjectStore = defineStore('subjectStore', {
             this.errText = undefined
             await addSubject(subject)
                 .then(res => {
-                    this.getSubjects(true)
+                    this.getSubjects()
                     this.getStatistic()
                 })
                 .catch(err => {
