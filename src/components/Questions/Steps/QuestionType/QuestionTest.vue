@@ -5,7 +5,7 @@
       <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
         Добавить вариант ответа
       </label>
-      <div class="flex gap-2">
+      <div class="flex items-center gap-2">
         <el-input
             v-model="newVariant"
             placeholder="Введите вариант ответа"
@@ -111,15 +111,14 @@
         Правильные ответы ({{ correctVariants.length }})
       </h4>
       <div class="flex gap-2 flex-wrap">
-        <el-tag
-            v-for="(variant, index) in correctVariants"
-            :key="index"
-            type="success"
-            size="small"
-            class="px-2 py-1"
+        <div
+            v-for="(answer, index) in correctVariants"
+            :key="`answer-${index}`"
+            class="inline-flex items-center gap-2 px-3 py-2 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 text-green-800 dark:text-green-200 rounded-lg font-medium text-sm"
         >
-          {{ variant }}
-        </el-tag>
+          <i class="fa fa-check text-xs"></i>
+          {{ answer }}
+        </div>
       </div>
     </div>
   </div>

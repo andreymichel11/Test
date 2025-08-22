@@ -2,7 +2,7 @@
 import { whatStatus } from '../../utils/utils.js';
 import { useRoute } from "vue-router";
 import { useTestStore } from "../../store/TestStore.js";
-import { Delete, View } from "@element-plus/icons-vue";
+import { View } from "@element-plus/icons-vue";
 import { computed, ref } from 'vue';
 
 const route = useRoute();
@@ -20,6 +20,18 @@ const props = defineProps({
   openModal: {
     type: Function,
     default: null
+  },
+  forceCardView: {
+    type: Boolean,
+    default: false
+  },
+  showCompactView: {
+    type: Boolean,
+    default: false
+  },
+  noContainer: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -37,6 +49,19 @@ const updateViewport = () => {
 const isTestRoute = computed(() => route.path.toLowerCase() === '/test');
 const isSubjectsRoute = computed(() => route.path === '/subjects');
 const isTestsRoute = computed(() => route.path === '/tests');
+const isModerateRoute = computed(() => {
+  return route.path.includes('/moderate');
+});
+
+// Determine if we should show card view
+const shouldShowCardView = computed(() => {
+  return isMobile.value || props.forceCardView || isModerateRoute.value;
+});
+
+// Determine table breakpoint for better responsive behavior
+const shouldShowCompactTable = computed(() => {
+  return isTablet.value || props.showCompactView;
+});
 
 const displayColumns = computed(() => {
   const baseColumns = [
@@ -121,14 +146,16 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="h-full flex flex-col">
-    <!-- Mobile Card View -->
-    <div v-if="isMobile" class="space-y-3 overflow-y-auto">
+  <div :class="{ 'h-full flex flex-col': !props.noContainer, 'flex flex-col': props.noContainer }">
+    <!-- Card View (Mobile or Forced) -->
+    <div v-if="shouldShowCardView" :class="{ 'space-y-4 overflow-y-auto p-2': !props.noContainer, 'space-y-4': props.noContainer }">
       <div
-          v-for="(question, index) in questions"
+          v-for="(question) in questions"
           :key="question.id"
           @click="setQuestions(question)"
-          class="bg-gray-50 dark:bg-neutral-700 rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-md border-l-4 border-transparent hover:border-blue-500"
+          class="bg-white dark:bg-neutral-800 rounded-xl p-4 cursor-pointer 
+                 transition-all duration-200 hover:shadow-lg border border-gray-200 
+                 dark:border-neutral-700 hover:border-blue-500 dark:hover:border-blue-400"
       >
         <!-- Checkbox for test route -->
         <div v-if="isTestRoute" class="flex items-center mb-3">
@@ -141,47 +168,70 @@ onUnmounted(() => {
         </div>
 
         <!-- Question text -->
-        <div class="mb-3">
-          <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-1">Вопрос</h4>
-          <p class="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{{ question.text }}</p>
+        <div class="mb-4">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <h4 class="font-semibold text-gray-900 dark:text-gray-100 text-sm">Текст вопроса</h4>
+          </div>
+          <p class="text-sm text-gray-700 dark:text-gray-300 line-clamp-2 pl-4">{{ question.text }}</p>
         </div>
 
-        <!-- Tags -->
-        <div class="flex flex-wrap gap-2 mb-3">
-          <el-tag :type="getTypeTag(question.type?.name).type" size="small">
-            {{ getTypeTag(question.type?.name).text }}
-          </el-tag>
-          <el-tag :type="getStatusTag(question.status).type" effect="dark" round size="small">
-            {{ getStatusTag(question.status).text }}
-          </el-tag>
+        <!-- Tags and Status -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex flex-wrap gap-2">
+            <el-tag :type="getTypeTag(question.type?.name).type" size="small" class="font-medium">
+              {{ getTypeTag(question.type?.name).text }}
+            </el-tag>
+            <el-tag :type="getStatusTag(question.status).type" effect="plain" round size="small">
+              {{ getStatusTag(question.status).text }}
+            </el-tag>
+          </div>
+          
+          <!-- Subject info (if not on subjects route) -->
+          <div v-if="!isSubjectsRoute && question.subject_name" class="text-xs text-gray-500 dark:text-gray-400">
+            {{ formatSubjectName(question.subject_name) }}
+          </div>
         </div>
 
         <!-- Meta info -->
-        <div class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
-          <span>{{ question.creator?.user_name || '---' }}</span>
-          <span>{{ formatDate(question.created_at) }}</span>
+        <div class="flex justify-between items-center pt-3 border-t border-gray-100 dark:border-neutral-700">
+          <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <i class="fa fa-user text-gray-400"></i>
+            <span>{{ question.creator?.user_name || 'Неизвестно' }}</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <i class="fa fa-calendar text-gray-400"></i>
+            <span>{{ formatDate(question.created_at) }}</span>
+          </div>
         </div>
 
-        <!-- View button for tests route -->
-        <div v-if="isTestsRoute" class="mt-3 flex justify-end">
+        <!-- Action buttons -->
+        <div v-if="isTestsRoute" class="mt-3 pt-3 border-t border-gray-100 dark:border-neutral-700 flex justify-end">
           <button
               @click.stop="openModal(question)"
-              class="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+              class="flex items-center gap-2 px-3 py-2 text-blue-600 hover:bg-blue-50 
+                     dark:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg transition-colors
+                     text-sm font-medium"
           >
             <el-icon><View /></el-icon>
+            <span>Просмотр</span>
           </button>
         </div>
       </div>
     </div>
 
     <!-- Desktop Table View -->
-    <div v-else class="flex-1 overflow-hidden">
+    <div v-else :class="{ 'flex-1': !props.noContainer }">
       <el-table
           :data="questions"
           highlight-current-row
           @current-change="setQuestions"
-          class="w-full h-full"
-          :class="{ 'table-responsive': isTablet }"
+          class="w-full subjects-table"
+          :class="{ 
+            'table-responsive': shouldShowCompactTable,
+            'table-compact': props.showCompactView 
+          }"
+
       >
         <!-- Test checkbox column -->
         <el-table-column v-if="isTestRoute" width="50" align="center">
@@ -238,18 +288,18 @@ onUnmounted(() => {
           </template>
         </el-table-column>
 
-        <!-- Creator column (hidden on tablet) -->
+        <!-- Creator column (hidden on compact view) -->
         <el-table-column
-            v-if="!isTablet"
+            v-if="!shouldShowCompactTable"
             prop="creator.user_name"
             label="Создал"
             min-width="100"
             show-overflow-tooltip
         />
 
-        <!-- Moderator column (hidden on tablet) -->
+        <!-- Moderator column (hidden on compact view) -->
         <el-table-column
-            v-if="!isTablet"
+            v-if="!shouldShowCompactTable"
             prop="moderator.user_name"
             label="Модератор"
             min-width="100"
@@ -275,17 +325,20 @@ onUnmounted(() => {
         <!-- View action column (tests route only) -->
         <el-table-column
             v-if="isTestsRoute"
-            label="Просмотр"
+            label="Действия"
             align="center"
-            width="100"
+            width="120"
             fixed="right"
         >
           <template #default="{ row }">
             <button
                 @click="openModal(row)"
-                class="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                class="flex items-center gap-2 px-3 py-2 text-blue-600 hover:bg-blue-50 
+                       dark:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg transition-colors
+                       text-sm font-medium"
             >
               <el-icon><View /></el-icon>
+              <span class="hidden lg:inline">Просмотр</span>
             </button>
           </template>
         </el-table-column>
@@ -294,45 +347,3 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped>
-/* Custom scrollbar for mobile cards */
-.space-y-3 {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e0 transparent;
-}
-
-.space-y-3::-webkit-scrollbar {
-  width: 6px;
-}
-
-.space-y-3::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.space-y-3::-webkit-scrollbar-thumb {
-  background-color: #cbd5e0;
-  border-radius: 3px;
-}
-
-/* Line clamp utility */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Responsive table styles */
-.table-responsive :deep(.el-table__body-wrapper) {
-  scrollbar-width: thin;
-}
-
-.table-responsive :deep(.el-table__body-wrapper)::-webkit-scrollbar {
-  height: 6px;
-}
-
-.table-responsive :deep(.el-table__body-wrapper)::-webkit-scrollbar-thumb {
-  background-color: #cbd5e0;
-  border-radius: 3px;
-}
-</style>

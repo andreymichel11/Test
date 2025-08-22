@@ -136,7 +136,7 @@ const formatDate = (dateString) => {
               :disabled="isLoading"
           >
             <template #prefix>
-              <i class="fa fa-shield-alt text-gray-400"></i>
+              <i class="fa fa-shield text-gray-400"></i>
             </template>
             <el-option
                 v-for="role in availableRoles"
@@ -175,7 +175,6 @@ const formatDate = (dateString) => {
           </el-button>
 
           <el-button
-              type="default"
               size="large"
               @click="close"
               :disabled="isLoading"
@@ -212,17 +211,14 @@ const formatDate = (dateString) => {
   border-radius: 6px;
   margin: 4px 8px;
   transition: all 0.2s ease;
+  height: 100%;
 }
 
 .role-option:hover {
   background: #f3f4f6;
 }
-
-/* Element Plus Overrides */
-:deep(.el-dialog) {
-  margin: 16px;
-  max-height: calc(100vh - 32px);
-  border-radius: 12px;
+.dark .role-option:hover {
+  background: #343434;
 }
 
 :deep(.el-dialog__header) {
@@ -230,19 +226,9 @@ const formatDate = (dateString) => {
   border-bottom: 1px solid #f1f5f9;
 }
 
-:deep(.el-dialog__body) {
-  padding: 24px;
-}
 
-:deep(.el-dialog__title) {
-  display: none;
-}
 
-:deep(.el-form-item__label) {
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 8px;
-}
+
 
 :deep(.el-input__wrapper) {
   border-radius: 8px;
@@ -263,7 +249,7 @@ const formatDate = (dateString) => {
 }
 
 :deep(.dark .el-form-item__label) {
-  color: #d1d5db;
+  color: #d1d5db !important;
 }
 
 :deep(.dark .el-input__wrapper) {

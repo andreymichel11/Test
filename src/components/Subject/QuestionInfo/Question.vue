@@ -41,7 +41,7 @@ const hasCode = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 h-full flex flex-col overflow-hidden">
+  <div class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 flex flex-1 flex-col">
     <!-- Header -->
     <div class="px-4 py-3 border-b border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-700/50 rounded-t-xl">
       <h3 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
@@ -51,7 +51,7 @@ const hasCode = computed(() => {
     </div>
 
     <!-- Content -->
-    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+    <div class="flex-1 p-4 space-y-4">
       <!-- Question Text -->
       <div
           v-if="hasQuestionText"
@@ -108,25 +108,5 @@ const hasCode = computed(() => {
 </template>
 
 <style>
-.overflow-y-auto {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e0 transparent;
-}
-
-.overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #cbd5e0;
-  border-radius: 3px;
-}
-
-.dark .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #4a5568;
-}
+/* Clean styling without scrollbars */
 </style>

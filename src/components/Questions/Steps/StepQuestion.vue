@@ -46,9 +46,9 @@ const selectedTypeName = computed(() => {
 const typeIcon = computed(() => {
   const type = selectedTypeName.value.toLowerCase()
   const icons = {
-    'текст': 'fa-keyboard',
-    'тест': 'fa-list-ul',
-    'сопоставление': 'fa-exchange-alt'
+    'текст': 'fa-keyboard-o',
+    'тест': 'fa-list',
+    'сопоставление': 'fa-exchange'
   }
   return icons[type] || 'fa-question-circle'
 })
@@ -148,7 +148,7 @@ watch(
               </div>
               <div class="min-w-0">
                 <p class="text-xs text-green-600 dark:text-green-400">Тематика</p>
-                <p class="text-sm font-medium text-green-900 dark:text-green-100 truncate" style="max-width: 120px;" :title="selectedSubjectName">{{ selectedSubjectName }}</p>
+                <p class="text-sm font-medium text-green-900 dark:text-green-100 truncate" :title="selectedSubjectName">{{ selectedSubjectName }}</p>
               </div>
             </div>
           </div>
@@ -180,7 +180,8 @@ watch(
             <el-checkbox
                 v-model="isCode"
                 size="large"
-                class="code-checkbox"
+                class="code-checkbox dark:!bg-neutral-700 dark:border-0"
+
             >
               <span class="flex items-center gap-2">
                 <i class="fa fa-code"></i>
@@ -207,7 +208,8 @@ watch(
                 </div>
                 <div class="flex-1 overflow-hidden">
                   <code-editor
-                      class="code-editor h-full"
+                      class="code-editor h-full w-full"
+                      style="width: 100%; height: 100%"
                       font-size="14px"
                       v-model="QuestionStore.newQuestion.code"
                       @input="inputHighlight"
@@ -277,7 +279,6 @@ watch(
         <!-- Action Buttons -->
         <div class="flex gap-3">
           <el-button
-              type="default"
               size="large"
               @click="back"
               :disabled="isLoading"
@@ -350,15 +351,11 @@ watch(
 .code-checkbox {
   padding: 12px;
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
   border-radius: 8px;
   transition: all 0.3s ease;
 }
 
-.code-checkbox:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-}
+
 
 /* Element Plus Input Styling */
 :deep(.question-input .el-textarea__inner) {
@@ -379,12 +376,12 @@ watch(
 }
 
 /* Dark theme */
-:deep(.dark .code-checkbox) {
+:deep(.dark .el-checkbox--large) {
   background: #262626;
   border-color: #404040;
 }
 
-:deep(.dark .code-checkbox:hover) {
+:deep(.dark .code-checkbox) {
   background: #404040;
   border-color: #525252;
 }

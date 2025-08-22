@@ -9,7 +9,7 @@
       <div class="h-full grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Левая таблица -->
         <div class="flex flex-col h-full">
-          <div class="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg flex-1 flex flex-col min-h-0">
+          <div class="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl shadow-sm flex-1 flex flex-col min-h-0">
             <div class="p-3 border-b border-gray-200 dark:border-neutral-700 flex-shrink-0">
               <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Левая колонка</h3>
               <div class="flex gap-2">
@@ -101,7 +101,7 @@
 
         <!-- Правая таблица -->
         <div class="flex flex-col h-full">
-          <div class="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg flex-1 flex flex-col min-h-0">
+          <div class="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl shadow-sm flex-1 flex flex-col min-h-0">
             <div class="p-3 border-b border-gray-200 dark:border-neutral-700 flex-shrink-0">
               <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Правая колонка</h3>
               <div class="flex gap-2">
@@ -196,7 +196,7 @@
     <!-- Bottom Section -->
     <div class="flex-shrink-0 space-y-3 mt-4">
       <!-- Mobile Connection Helper -->
-      <div v-if="isMobile && mobileSelectedLeft" class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3">
+      <div v-if="isMobile && mobileSelectedLeft" class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-xl p-4">
         <p class="text-sm text-yellow-700 dark:text-yellow-300">
           <i class="fa fa-info-circle mr-2"></i>
           Выбран элемент "<strong>{{ mobileSelectedLeft.value }}</strong>". Теперь нажмите на элемент в правой колонке для создания соединения.
@@ -204,7 +204,7 @@
       </div>
 
       <!-- Instructions -->
-      <div v-if="rightTableData.length > 0 && leftTableData.length > 0" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+      <div v-if="rightTableData.length > 0 && leftTableData.length > 0" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-4">
         <p class="text-sm text-blue-700 dark:text-blue-300">
           <i class="fa fa-info-circle mr-2"></i>
           <span v-if="!isMobile">
@@ -250,15 +250,15 @@
       </div>
 
       <!-- Empty State -->
-      <div v-if="leftTableData.length === 0 && rightTableData.length === 0" class="text-center py-6">
-        <div class="w-12 h-12 bg-gray-100 dark:bg-neutral-700 rounded-lg flex items-center justify-center mx-auto mb-3">
-          <i class="fa fa-exchange-alt text-gray-400"></i>
+      <div v-if="leftTableData.length === 0 && rightTableData.length === 0" class="text-center py-12">
+        <div class="w-16 h-16 bg-gray-100 dark:bg-neutral-700 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-exchange text-gray-400 text-xl"></i>
         </div>
-        <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
           Создайте элементы для сопоставления
         </h3>
-        <p class="text-xs text-gray-600 dark:text-gray-400">
-          Добавьте элементы в обе колонки и создайте соединения
+        <p class="text-sm text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
+          Добавьте элементы в обе колонки и создайте соединения между ними
         </p>
       </div>
     </div>
@@ -267,7 +267,6 @@
 
 <script setup>
 import {ref, computed, onMounted, onUnmounted, watch, nextTick, onUpdated} from 'vue'
-import { Delete } from '@element-plus/icons-vue'
 import {useQuestionStore} from "../../../../store/QuestionStore.js";
 
 const QuestionStore = useQuestionStore()
@@ -351,8 +350,8 @@ watch(
           })
           QuestionStore.newQuestion.answer.answer.forEach((item) => {
             Object.keys(item).forEach((key) => {
-              const foundLeftObject = leftTableData.value.find(i => i.value == key);
-              const foundRightObject = rightTableData.value.find(i => i.value == item[key]);
+              const foundLeftObject = leftTableData.value.find(i => i.value === key);
+              const foundRightObject = rightTableData.value.find(i => i.value === item[key]);
               if (foundLeftObject && foundRightObject) {
                 connections.value.set(foundLeftObject.id, foundRightObject.id)
                 foundLeftObject.connectedTo.push(foundRightObject.id);
@@ -447,10 +446,9 @@ function getRowStyle(row, side) {
   const isConnected = side === 'left' ? row.connectedTo.length > 0 : row.connectedFrom.length > 0
 
   if (!isConnected) {
-    return {
-      backgroundColor: '#f8fafc',
-      border: '1px solid #e2e8f0'
-    }
+      return {
+        backgroundColor: localStorage.getItem('data-theme') === 'dark' ? '#454545' : '#ffffff'
+      }
   }
 
   let color
@@ -748,23 +746,27 @@ onUpdated(() => {
 }
 
 .add-item-btn {
-  background: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   border: none;
   color: white;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: all 0.3s ease;
   width: 40px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
 .add-item-btn:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
 }
 
 .add-item-btn:disabled {
   background: #9ca3af;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .action-btn {
@@ -780,6 +782,11 @@ onUpdated(() => {
 }
 
 /* Element Plus Table Styling */
+:deep(.compact-table) {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
 :deep(.compact-table .el-table__body-wrapper) {
   max-height: calc(100% - 40px);
 }
@@ -787,42 +794,68 @@ onUpdated(() => {
 :deep(.compact-table .el-table th) {
   background: #f8fafc;
   border-color: #e2e8f0;
-  padding: 8px 4px;
-  font-size: 12px;
+  padding: 12px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
 }
 
 :deep(.compact-table .el-table td) {
-  border-color: #e2e8f0;
-  padding: 2px;
+  border-color: #f1f5f9;
+  padding: 4px;
+  vertical-align: middle;
 }
 
 :deep(.compact-table .el-table__row) {
   transition: all 0.3s ease;
 }
 
+:deep(.compact-table .el-table tbody tr:hover > td) {
+  background-color: #f8fafc;
+}
+
 :deep(.dark .compact-table .el-table th) {
   background: #262626;
   border-color: #404040;
+  color: #f3f4f6;
 }
 
 :deep(.dark .compact-table .el-table td) {
-  border-color: #404040;
+  border-color: #374151;
+}
+
+:deep(.dark .compact-table .el-table tbody tr:hover > td) {
+  background-color: #374151;
 }
 
 /* Element Plus Input Styling */
 :deep(.el-input__wrapper) {
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #e2e8f0;
-  padding: 6px 8px;
+  padding: 8px 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 :deep(.el-input__wrapper:hover) {
   border-color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 :deep(.dark .el-input__wrapper) {
   background: #262626;
   border-color: #404040;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.dark .el-input__wrapper:hover) {
+  border-color: #3b82f6;
+  background: #2d2d2d;
 }
 
 /* Scrollbar styling */
@@ -845,6 +878,7 @@ onUpdated(() => {
   .add-item-btn {
     width: 100%;
     margin-top: 8px;
+    height: 40px;
   }
 
   .connection-dot {
@@ -853,7 +887,16 @@ onUpdated(() => {
   }
 
   .grid-cols-1 {
-    gap: 8px;
+    gap: 12px;
+  }
+  
+  :deep(.compact-table .el-table th) {
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+  
+  :deep(.compact-table .el-table td) {
+    padding: 2px;
   }
 }
 </style>

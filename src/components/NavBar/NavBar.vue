@@ -307,7 +307,7 @@ onMounted(() => {
               @click="changeTheme(); closeMobileMenu()"
               class="w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-neutral-600 text-gray-700 dark:text-gray-300"
           >
-            <i :class="dark ? 'fa fa-sun' : 'fa fa-moon'" class="w-5 h-5 text-amber-500" />
+            <i :class="dark ? 'fa fa-sun-o' : 'fa fa-moon-o'" class="w-5 h-5 text-amber-500" />
             <span class="font-medium">Сменить тему</span>
           </button>
 

@@ -42,304 +42,122 @@ const updateOpen = (user) => {
 </script>
 
 <template>
-  <div class="user-table-container">
-    <!-- Table Wrapper -->
-    <div class="overflow-x-auto">
-      <el-table
-          :data="usersData"
-          size="large"
-          class="w-full"
-          :class="{ 'opacity-75': !hasUsers }"
-          stripe
-          header-cell-class-name="table-header"
-          row-class-name="table-row"
+  <div>
+    <!-- Users Grid -->
+    <div
+        v-if="hasUsers"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6 p-4"
+    >
+      <div
+          v-for="user in usersData"
+          :key="user.id || user.login"
+          class="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-md dark:shadow-gray-900/20 dark:hover:shadow-gray-900/30 transition-all duration-200 ease-in-out hover:-translate-y-0.5 flex flex-col gap-4 sm:gap-5"
       >
-        <!-- Login Column -->
-        <el-table-column
-            prop="login"
-            label="Логин"
-            min-width="150"
-            show-overflow-tooltip
-        >
-          <template #default="scope">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                {{ (scope.row.login || '?')[0].toUpperCase() }}
-              </div>
-              <div class="min-w-0">
-                <div class="font-medium text-gray-900 dark:text-white truncate">
-                  {{ scope.row.login || 'Не указан' }}
-                </div>
-              </div>
+        <!-- User Avatar and Basic Info -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-full flex items-center justify-center text-white text-sm sm:text-base font-semibold shadow-sm shadow-blue-500/30 dark:shadow-blue-600/30 flex-shrink-0">
+            {{ (user.login || '?')[0].toUpperCase() }}
+          </div>
+          <div class="min-w-0 flex-1">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">
+              {{ user.login || 'Не указан' }}
+            </h3>
+            <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 truncate">
+              {{ user.user_name || 'Не указан' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- User Role -->
+        <div class="flex  gap-2 justify-between">
+          <div class="flex flex-col gap-2 ">
+            <label class="text-xs font-semibold text-gray-500 dark:text-gray-400  tracking-wide">
+              Роль
+            </label>
+            <UserRole :type="user.role_name" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-xs font-semibold text-gray-500 dark:text-gray-400  tracking-wide">
+              Дата создания
+            </label>
+            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+              <i class="fa fa-calendar text-xs text-gray-400 dark:text-gray-500"></i>
+              <span>{{ formatDate(user.created_at) }}</span>
             </div>
-          </template>
-        </el-table-column>
+        </div>
 
-        <!-- Username Column -->
-        <el-table-column
-            prop="user_name"
-            label="Псевдоним"
-            min-width="150"
-            show-overflow-tooltip
-        >
-          <template #default="scope">
-            <div class="font-medium text-gray-900 dark:text-gray-100">
-              {{ scope.row.user_name || 'Не указан' }}
-            </div>
-          </template>
-        </el-table-column>
+        <!-- Created Date -->
 
-        <!-- Role Column -->
-        <el-table-column
-            prop="role_name"
-            label="Роль"
-            min-width="140"
-            align="center"
-            class-name="role-column"
-        >
-          <template #default="scope">
-            <UserRole :type="scope.row.role_name" />
-          </template>
-        </el-table-column>
+        </div>
 
-        <!-- Created Date Column -->
-        <el-table-column
-            prop="created_at"
-            label="Дата создания"
-            min-width="160"
-            show-overflow-tooltip
-        >
-          <template #default="scope">
-            <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <i class="fa fa-calendar-alt text-xs"></i>
-              <span class="text-sm">{{ formatDate(scope.row.created_at) }}</span>
-            </div>
-          </template>
-        </el-table-column>
-
-        <!-- Actions Column -->
-        <el-table-column
-            label="Управление"
-            align="center"
-            min-width="100"
-
-            class-name="actions-column"
-        >
-          <template #default="scope">
-            <div class="flex items-center justify-center">
-              <el-button
-                  type="warning"
-                  size="small"
-                  @click="updateOpen(scope.row)"
-                  class="action-button"
-                  title="Редактировать пользователя"
-              >
-                <i class="fa fa-edit"></i>
-                <span class="hidden lg:inline ml-1">Изменить</span>
-              </el-button>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+        <!-- Actions -->
+        <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
+          <el-button
+              type="warning"
+              @click="updateOpen(user)"
+              class="w-full flex items-center justify-center gap-2 font-medium"
+              title="Редактировать пользователя"
+          >
+            <i class="fa fa-edit"></i>
+            <span>Изменить</span>
+          </el-button>
+        </div>
+      </div>
     </div>
 
-    <!-- Empty State (если нет данных) -->
-    <div v-if="!hasUsers" class="flex items-center justify-center py-12">
-      <div class="text-center">
-        <i class="fa fa-users text-gray-300 dark:text-gray-600 text-4xl mb-3"></i>
-        <p class="text-gray-500 dark:text-gray-400">Нет данных для отображения</p>
+    <!-- Empty State -->
+    <div
+        v-else
+        class="flex items-center justify-center py-12 sm:py-16 lg:py-20 px-4 min-h-96"
+    >
+      <div class="text-center max-w-sm">
+        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-users text-xl sm:text-2xl text-gray-400 dark:text-gray-500"></i>
+        </div>
+        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          Нет пользователей
+        </h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Пользователи появятся здесь после регистрации
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.user-table-container {
-  border-radius: 8px;
-  overflow: hidden;
-}
+/* Минимальные кастомные стили только для того, что нельзя сделать с Tailwind */
 
-.action-button {
-  font-weight: 600;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.action-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Element Plus Table Styling */
-:deep(.el-table) {
-
-  --el-table-bg-color: transparent;
-  --el-table-tr-bg-color: transparent;
-  --el-table-expanded-cell-bg-color: transparent;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-:deep(.dark .el-table) {
-  --el-table-border-color: #3f3f46;
-  --el-table-text-color: #f4f4f5;
-  --el-table-header-text-color: #f4f4f5;
-  --el-table-bg-color: #27272a;
-  --el-table-tr-bg-color: #27272a;
-  --el-table-expanded-cell-bg-color: #27272a;
-  background: #27272a !important;
-
-}
-
-:deep(.table-header) {
-  background: #f8fafc !important;
-  font-weight: 600 !important;
-  color: #374151 !important;
-
-}
-
-
-
-:deep( .dark > .table-header) {
-  background: linear-gradient(135deg, #3f3f46 0%, #52525b 100%) !important;
-  color: #f4f4f5 !important;
-  font-weight: 700 !important;
-}
-
-:deep(.table-row) {
-  transition: all 0.3s ease;
-}
-
-
-:deep(.dark .table-row) {
-  background: #27272a !important;
-  transition: all 0.3s ease;
-}
-
-
-:deep(.el-table__cell) {
-  padding: 16px 12px !important;
-  transition: all 0.3s ease;
-}
-
-:deep(.dark .el-table__cell) {
-  background: #27272a !important;
-}
-
-:deep(.dark .el-table__row) {
-  background: #27272a !important;
-}
-
-:deep(.dark .el-table__row:hover .el-table__cell) {
-  background: linear-gradient(135deg, #374151 0%, #4b5563 100%) !important;
-  border-bottom-color: #52525b !important;
-}
-
-:deep(.dark .el-table__row--striped) {
-  background: #2d2d30 !important;
-}
-
-:deep(.dark .el-table__row--striped .el-table__cell) {
-  background: #2d2d30 !important;
-}
-
-:deep(.dark .el-table__row--striped:hover .el-table__cell) {
-  background: linear-gradient(135deg, #374151 0%, #4b5563 100%) !important;
-}
-
-:deep(.dark .el-table__header) {
-  background: linear-gradient(135deg, #3f3f46 0%, #52525b 100%) !important;
-}
-
-:deep(.dark .el-table__header-wrapper) {
-  background: linear-gradient(135deg, #3f3f46 0%, #52525b 100%) !important;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-
-:deep(.dark .el-table__header th) {
-  background: linear-gradient(135deg, #3f3f46 0%, #52525b 100%) !important;
-  color: #f4f4f5 !important;
-  font-weight: 700 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 12px;
-  border-bottom: 1px solid #52525b !important;
-}
-
-:deep(.dark .el-table__header th .cell) {
-  color: #f4f4f5 !important;
-  font-weight: 700 !important;
-}
-
-:deep(.dark .el-table__body) {
-  background: #27272a !important;
-}
-
-/* Переопределяем Element Plus hover стили */
-:deep(.dark .el-table__body tr:hover > td) {
-  background: linear-gradient(135deg, #374151 0%, #4b5563 100%) !important;
-}
-
-:deep(.dark .el-table__body tr.hover-row > td) {
-  background: linear-gradient(135deg, #374151 0%, #4b5563 100%) !important;
-}
-
-/* Дополнительные эффекты */
-:deep(.dark .el-table__body tr) {
-  position: relative;
-}
-
-:deep(.dark .el-table__body tr::before) {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 3px;
-  background: transparent;
-  transition: all 0.3s ease;
-}
-
-:deep(.dark .el-table__body tr:hover::before) {
-  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
-}
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-  :deep(.el-table__cell) {
-    padding: 12px 8px !important;
+/* Дополнительная тень для dark mode */
+@media (prefers-color-scheme: dark) {
+  .user-card-shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
   }
 
-  .action-button {
-    padding: 8px 10px;
-    font-size: 12px;
-    min-width: 36px;
-  }
-
-  :deep(.role-column .el-table__cell) {
-    padding: 12px 4px !important;
-  }
-
-  :deep(.actions-column .el-table__cell) {
-    padding: 12px 4px !important;
+  .user-card-shadow:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
   }
 }
 
-@media (max-width: 640px) {
-  :deep(.el-table .cell) {
-    word-break: break-word;
-    font-size: 14px;
+/* Кастомизация для очень маленьких экранов */
+@media (max-width: 320px) {
+  .grid {
+    margin: 0 -0.5rem;
   }
 
-  .action-button {
-    padding: 6px 8px;
-    min-width: 32px;
+  .grid > div {
+    border-radius: 0.5rem;
   }
+}
 
-  :deep(.role-column .el-table__cell) {
-    padding: 8px 2px !important;
+/* Улучшение градиента аватара для совместимости */
+.avatar-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .avatar-gradient {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   }
 }
 </style>

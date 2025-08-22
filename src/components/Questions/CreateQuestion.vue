@@ -131,9 +131,9 @@ const handleBeforeClose = (done) => {
 
     <!-- Footer -->
     <template #footer>
-      <div class="flex items-center justify-center pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-center pt-4 border-t border-gray-200 dark:border-neutral-700">
         <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-          <i class="fa fa-info-circle text-blue-500 mr-2"></i>
+          <i class="fa fa-info-circle text-blue-500 dark:text-blue-400 mr-2"></i>
           <span>Все поля обязательны для заполнения</span>
         </div>
       </div>

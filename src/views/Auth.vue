@@ -52,9 +52,9 @@ const validateField = (field, value) => {
       if (!value.trim()) {
         return 'Пароль обязателен для заполнения';
       }
-      if (value.length < 6) {
-        return 'Пароль должен содержать минимум 6 символов';
-      }
+      // if (value.length < 6) {
+      //   return 'Пароль должен содержать минимум 6 символов';
+      // }
       break;
     default:
       return '';
@@ -284,16 +284,6 @@ const login = async () => {
   animation: fade-in-up 0.8s ease-out;
 }
 
-/* Переходы Vue */
-.slide-fade-enter-active {
-  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.slide-fade-enter-from {
-  transform: translateX(50px);
-  opacity: 0;
-}
-
 .error-fade-enter-active .error-fade-leave-active {
   transition: all 0.3s ease;
 }
@@ -328,10 +318,7 @@ const login = async () => {
   }
 }
 
-/* Улучшенная тень для карточек */
-.shadow-3xl {
-  box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
-}
+
 
 /* Стили для полей с ошибками */
 .form-group :deep(.error) {
@@ -355,20 +342,17 @@ const login = async () => {
   }
 }
 
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
 
 /* Градиентная анимация для кнопки */
 @keyframes gradient {
   0% {
-    background-position: 0% 50%;
+    background-position: 0 50%;
   }
   50% {
     background-position: 100% 50%;
   }
   100% {
-    background-position: 0% 50%;
+    background-position: 0 50%;
   }
 }
 

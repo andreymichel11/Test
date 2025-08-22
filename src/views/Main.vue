@@ -31,7 +31,7 @@ const handleNewQuestion = () => router.push({ name: 'NewQuestion' });
 <template>
   <div class="min-h-[var(--main-height)] relative px-4 sm:px-6 lg:px-8">
     <!-- Background -->
-    <div class="absolute inset-0 z-[-1] lg:bg-[image:var(--main-bg-image)] bg-right-bottom bg-auto bg-no-repeat"></div>
+<!--    <div class="absolute inset-0 z-[-1] lg:bg-[image:var(&#45;&#45;main-bg-image)] bg-right-bottom bg-auto bg-no-repeat"></div>-->
 
     <!-- Action Buttons -->
     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-10 mb-6 sm:mb-10">

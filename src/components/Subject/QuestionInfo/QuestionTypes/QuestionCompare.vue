@@ -20,11 +20,14 @@ const rightVariants = computed(() => {
 
 const correctAnswers = computed(() => {
   if (!props.question.answer?.answer?.[0]) return []
-  const answerObj = props.question.answer.answer[0]
-  return Object.keys(answerObj).map(key => ({
-    key,
-    value: answerObj[key]
-  }))
+  const answerObj = props.question.answer.answer
+  const resultAnswer = []
+
+  answerObj.map(ans => {
+    resultAnswer.push({key:Object.keys(ans)[0], value: Object.values(ans)[0]})
+  })
+
+  return resultAnswer
 })
 
 const hasVariants = computed(() => leftVariants.value.length > 0 || rightVariants.value.length > 0)
@@ -99,7 +102,7 @@ const formatText = (text) => {
       <div class="flex items-center gap-2 mb-4">
         <i class="fa fa-check-circle text-green-500"></i>
         <h4 class="font-medium text-gray-900 dark:text-gray-100">
-          Правильный{{ correctAnswers.length > 1 ? 'е' : '' }} ответ{{ correctAnswers.length > 1 ? 'ы' : '' }}:
+          Правильны{{ correctAnswers.length > 1 ? 'е' : 'й' }} ответ{{ correctAnswers.length > 1 ? 'ы' : '' }}:
         </h4>
       </div>
 

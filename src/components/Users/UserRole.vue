@@ -51,7 +51,7 @@ const formattedLabel = computed(() => {
     <el-tag
         :type="roleConfig.color"
         effect="light"
-        size="default"
+        size="large"
         class="role-tag font-semibold"
     >
       <i class="fa mr-1.5 text-xs" :class="roleConfig.icon"></i>

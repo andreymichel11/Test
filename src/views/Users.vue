@@ -13,7 +13,7 @@ const hasUsers = computed(() => {
 })
 
 const isAdmin = computed(() => {
-  return UsersStore.getRole === 'admin'
+  return UsersStore.getRole === 'Admin'
 })
 
 const isLoading = computed(() => {
@@ -47,26 +47,10 @@ const updateUser = async () => {
 </script>
 
 <template>
-  <div class="max-w-8xl mx-auto p-4 sm:p-6 lg:p-8">
-    <!-- Page Header -->
-    <div class="mb-8">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
-          <i class="fa fa-users text-blue-500 text-lg"></i>
-        </div>
-        <div>
-          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-            Управление пользователями
-          </h1>
-          <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-            Просмотр и управление учетными записями пользователей
-          </p>
-        </div>
-      </div>
-    </div>
+  <div class="max-w-8xl">
 
     <!-- Main Content -->
-    <div class="bg-white rounded-xl shadow-lg dark:border dark:border-neutral-700 dark:bg-neutral-800 overflow-hidden">
+    <div class="bg-gray-50 dark:bg-neutral-900 shadow-lg  overflow-hidden">
       <!-- Loading State -->
       <div v-if="isLoading" class="flex items-center justify-center py-20">
         <div class="text-center">
@@ -83,42 +67,36 @@ const updateUser = async () => {
       <!-- Users Content -->
       <div v-else-if="hasUsers" class=" ">
         <!-- Table Header Info -->
-        <div class="px-6 py-4 bg-gray-50 dark:bg-neutral-800">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3">
-              <i class="fa fa-table text-gray-500"></i>
-              <div>
-                <h3 class="text-base font-semibold text-gray-900 dark:text-white">
-                  Список пользователей
-                </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                  Всего: {{ UsersStore.users.length }} пользователей
-                </p>
-              </div>
-            </div>
 
+        <div class="px-6 py-4 bg-white dark:bg-neutral-800">
+          <div class="flex  sm:flex-row items-center justify-between gap-4">
+
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-gray-500 rounded-lg flex items-center justify-center">
+                      <i class="fa fa-users text-white text-lg"></i>
+                    </div>
+                    <div>
+                      <h1 class="text-xl font-bold text-gray-900 dark:text-white">
+                        Управление пользователями
+                      </h1>
+                      <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Просмотр и управление учетными записями пользователей
+                      </p>
+                    </div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Всего: {{ UsersStore.users.length }} пользователей
+            </p>
             <!-- Quick Stats -->
 
           </div>
         </div>
 
         <!-- User Table -->
-        <div class="p-6">
+        <div >
           <UserTable />
         </div>
 
-        <!-- Pagination -->
-        <div class="px-6 py-4 bg-gray-50 dark:bg-neutral-800 ">
-          <el-pagination
-              v-model:current-page="UsersStore.currentPage"
-              v-model:page-size="UsersStore.pageSize"
-              :page-sizes="[10, 20, 40]"
-              :total="UsersStore.users.length"
-              layout="sizes, prev, pager, next"
-              background
-              class="flex justify-center"
-          />
-        </div>
       </div>
 
       <!-- Empty State -->
